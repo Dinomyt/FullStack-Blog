@@ -15,6 +15,7 @@ namespace API.Models
         public string? Description {get;set;}
         public string? Date {get;set;}
         public string? Category {get;set;}
+        public string? Tag {get;set;}
         public bool IsPublished {get;set;}
         public bool IsDeleted {get;set;}
 

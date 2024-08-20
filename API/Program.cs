@@ -1,6 +1,9 @@
 using API.Services;
 using API.Services.Context;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +31,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(options => { 
+    options.AllowAnyHeader(); 
+    options.AllowAnyMethod(); 
+    options.AllowAnyOrigin();
+});
+
 app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 

@@ -136,3 +136,4 @@ C:\Users\nengl\Documents\VS Code\Level4\FullStack-Blog\api\obj\Debug\net8.0\refi
 C:\Users\nengl\Documents\VS Code\Level4\FullStack-Blog\api\obj\Debug\net8.0\API.pdb
 C:\Users\nengl\Documents\VS Code\Level4\FullStack-Blog\api\obj\Debug\net8.0\API.genruntimeconfig.cache
 C:\Users\nengl\Documents\VS Code\Level4\FullStack-Blog\api\obj\Debug\net8.0\ref\API.dll
+C:\Users\nengl\Documents\VS Code\Level4\FullStack-Blog\api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
