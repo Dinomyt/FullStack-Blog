@@ -18,6 +18,9 @@ const Dashboard = ({ isDarkMode }) => {
 
   const [edit, setEdit] = useState(false);
 
+  const [userId, setUserId] = useState(0);
+  const [publisherName, setPublisherName] = useState("");
+
   //Dummy data useState
   const [blogItems, setBlogItems] = useState([
     {
@@ -72,6 +75,38 @@ const Dashboard = ({ isDarkMode }) => {
     },
   ]);
 
+  const handleSaveWithPublish = () => {
+    const published = {
+      Id: 0,
+      UserId: userId,
+      PublisherName: publisherName,
+      Tag: blogTags,
+      Title: blogTitle,
+      Image: blogImage,
+      Description: blogDescription,
+      Date: new Date(),
+      Category: blogCategory,
+      IsPublished: true,
+      IsDeleted: false
+    }
+  }
+
+  const handleSaveWithUnPublish = () => {
+    const published = {
+      Id: 0,
+      UserId: 0,
+      PublisherName: "",
+      Tag: "blogTags",
+      Title: "blogTitle",
+      Image: "blogImage",
+      Description: "blogDescription",
+      Date: "new Date()",
+      Category: "blogCategory",
+      IsPublished: true,
+      IsDeleted: false
+    }
+  }
+  
 
   const handleClose = () => setShow(false);
   const handleShow = (e) => {
@@ -113,15 +148,15 @@ const handleImage = (e) => {
     setBlogImage(e.target.value)
 }
 let navigate = useNavigate();
+
+
 //useEffect is the first thing that fires onload.
-  useEffect(() => {
-    if(!checkToken())
-    {
-      navigate('/Login');
-    }
-  
-    
-  }, [])
+useEffect(() => {
+  if(!checkToken())
+  {
+    navigate('/Login');
+  }
+}, [])
   
 
   return (
@@ -182,10 +217,10 @@ let navigate = useNavigate();
             <Button variant="outline-secondary" onClick={handleClose}>
               Cancel
             </Button>
-            <Button variant="outline-primary" onClick={handleClose}>
+            <Button variant="outline-primary" onClick={handleSaveWithUnPublish}>
             {edit ? "  Save Changes" : "Save"}
             </Button>
-            <Button variant="outline-primary" onClick={handleClose}>
+            <Button variant="outline-primary" onClick={handleSaveWithPublish}>
               {edit ? "  Save Changes" : "Save"} and Publish
             </Button>
           </Modal.Footer>

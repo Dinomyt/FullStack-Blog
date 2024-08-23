@@ -27,7 +27,7 @@ namespace API.Controllers
         public bool AddUser(CreateAccountDTO UserToAdd)
         {
             //create a variable with a type of service
-           return _data.AddUser(UserToAdd);
+            return _data.AddUser(UserToAdd);
         }
 
 
@@ -39,12 +39,12 @@ namespace API.Controllers
         }
 
         [HttpGet("GetUserByUsername/{UserName}")]
-            public UserIdDTO GetUserIdDTOByUserName(string username)
-            {
-                return _data.GetUserIdDTOByUserName(username);
-            }
-        
-    
+        public UserIdDTO GetUserIdDTOByUserName(string username)
+        {
+            return _data.GetUserIdDTOByUserName(username);
+        }
+
+
 
         [HttpPost("Login")]
 
@@ -57,14 +57,14 @@ namespace API.Controllers
         [HttpPost("DeleteUser/{userToDelete}")]
         public bool DeleteUser(string userToDelete)
         {
-            return _data.DeleteUser(userToDelete);   
+            return _data.DeleteUser(userToDelete);
         }
 
         [HttpPost("UpdateUser")]
 
         public bool UpdateUser(int id, string username)
         {
-            return _data.UpdateUser(id,username);
+            return _data.UpdateUser(id, username);
         }
 
     }

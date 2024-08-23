@@ -17,21 +17,25 @@ namespace API.Services;
 public class UserService : ControllerBase
 {
     private readonly DataContext _context;
-    public UserService(DataContext context){
+    public UserService(DataContext context)
+    {
         _context = context;
     }
 
-    public bool DoesUserExist (string username){
+    public bool DoesUserExist(string username)
+    {
         return _context.UserInfo.SingleOrDefault(user => user.Username == username) != null;
     }
 
-    public bool AddUser(CreateAccountDTO UserToAdd){
+    public bool AddUser(CreateAccountDTO UserToAdd)
+    {
         bool result = false;
 
-        if (!DoesUserExist(UserToAdd.Username)){
+        if (!DoesUserExist(UserToAdd.Username))
+        {
             UserModel newUser = new UserModel();
             var newHashedPassword = HashPassword(UserToAdd.Password);
-            
+
             newUser.Id = UserToAdd.Id;
             newUser.Username = UserToAdd.Username;
             newUser.Salt = newHashedPassword.Salt;
@@ -44,7 +48,8 @@ public class UserService : ControllerBase
         return result;
     }
 
-    public PasswordDTO HashPassword(string password){
+    public PasswordDTO HashPassword(string password)
+    {
         PasswordDTO newHashedPassword = new PasswordDTO();
         byte[] SaltBytes = new byte[64];
         var provider = new RNGCryptoServiceProvider();
@@ -58,22 +63,25 @@ public class UserService : ControllerBase
         return newHashedPassword;
     }
 
-    public bool VerifyUserPassword(string? Password, string?StoredHash, string? StoredSalt){
+    public bool VerifyUserPassword(string? Password, string? StoredHash, string? StoredSalt)
+    {
         var SaltBytes = Convert.FromBase64String(StoredSalt);
-        var rfc2898DeriveBytes = new Rfc2898DeriveBytes(Password,SaltBytes,10000);
+        var rfc2898DeriveBytes = new Rfc2898DeriveBytes(Password, SaltBytes, 10000);
         var newHash = Convert.ToBase64String(rfc2898DeriveBytes.GetBytes(256));
 
         return newHash == StoredHash;
     }
 
-    public IEnumerable<UserModel> GetAllUsers(){
+    public IEnumerable<UserModel> GetAllUsers()
+    {
         return _context.UserInfo;
     }
 
     public IActionResult Login(LoginDTO User)
     {
         IActionResult Result = Unauthorized();
-        if (DoesUserExist(User.Username)){
+        if (DoesUserExist(User.Username))
+        {
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("reallyLongKeysuperSecretKey@345678Hello"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
             var tokeOptions = new JwtSecurityToken(
@@ -91,20 +99,27 @@ public class UserService : ControllerBase
 
     public UserIdDTO GetUserIdDTOByUserName(string? Username)
     {
-        throw new NotImplementedException();
+        var UserInfo = new UserIdDTO();
+        var foundUser = _context.UserInfo.SingleOrDefault(user => user.Username == Username);
+        UserInfo.UserId = foundUser.Id;
+        UserInfo.PublisherName = foundUser.Username;
+        return UserInfo;
     }
 
-    public UserModel GetUserByUserName(string? Username){
+    public UserModel GetUserByUserName(string? Username)
+    {
         return _context.UserInfo.SingleOrDefault(user => user.Username == Username);
     }
-        public UserModel GetUserByUserId(int Id){
+    public UserModel GetUserByUserId(int Id)
+    {
         return _context.UserInfo.SingleOrDefault(user => user.Id == Id);
     }
     public bool DeleteUser(string UsernameToDelete)
     {
         UserModel foundUser = GetUserByUserName(UsernameToDelete);
         bool result = false;
-        if(foundUser != null){
+        if (foundUser != null)
+        {
             foundUser.Username = UsernameToDelete;
             _context.Remove<UserModel>(foundUser);
             result = _context.SaveChanges() != 0;
@@ -116,7 +131,8 @@ public class UserService : ControllerBase
     {
         UserModel foundUser = GetUserByUserId(id);
         bool result = false;
-        if(foundUser != null){
+        if (foundUser != null)
+        {
             foundUser.Username = username;
             _context.Update<UserModel>(foundUser);
             result = _context.SaveChanges() != 0;
