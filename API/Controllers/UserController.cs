@@ -27,7 +27,7 @@ namespace API.Controllers
         public bool AddUser(CreateAccountDTO UserToAdd)
         {
             //create a variable with a type of service
-           return  _data.AddUser(UserToAdd);
+           return _data.AddUser(UserToAdd);
         }
 
 

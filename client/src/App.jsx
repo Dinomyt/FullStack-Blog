@@ -1,15 +1,20 @@
-import { Button, Col, Container, Row } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { Container, Button, Row, Col } from "react-bootstrap";
 import NavBar from "./components/NavBar";
 import CarouselHero from "./components/CarouselHero";
 import Dashboard from "./components/Dashboard";
 import BlogPage from "./components/BlogPage";
 import CreateAccount from "./components/CreateAccount";
 import Login from "./components/Login";
-import {BrowserRouter, Routes, Route} from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const App = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [user, setUser] = useState(null);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+  }
 
   useEffect(() => {
     const currentTheme = localStorage.getItem("theme");
@@ -32,25 +37,29 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
+        <Container className="p-0" fluid>
+          <NavBar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        </Container>
+
         <Container
           fluid
-          className={` ${isDarkMode ? "bg-dark text-light" : "bg-light"}`}
+          className={`${isDarkMode ? "bg-dark text-light" : "bg-light"}`}
           style={{ minHeight: "100vh", padding: "0px" }}
+          data-bs-theme={isDarkMode ? "dark" : "light"}
         >
-          <Container className="p-0" fluid>
-            <NavBar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-          </Container>
           <CarouselHero isDarkMode={isDarkMode} />
           <Row className="text-center">
             <Col>
               <h1>Our Blog</h1>
             </Col>
-            <Routes>
-              <Route path="/" element={<BlogPage/>}/>
-              <Route path="/Login" element={<Login/>}/>
-              <Route path="/CreateAccount" element={<CreateAccount/>}/>
-              <Route path="/Dashboard" element={<Dashboard isDarkMode={isDarkMode}/>}/>
-            </Routes>
+              <Routes>
+                <Route path="/" element={<BlogPage/>}/>
+                <Route path="/Login" element={<Login onLogin={handleLogin} />}/>
+                <Route path="/CreateAccount" element={<CreateAccount/>}/>
+                <Route path="/Dashboard" element={<Dashboard isDarkMode={isDarkMode} />}/>
+
+              </Routes>
+
           </Row>
         </Container>
       </BrowserRouter>

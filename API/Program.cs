@@ -22,6 +22,17 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("BlogPolicy",
+    builder => {
+        builder.WithOrigins("http://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    }
+    );
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,13 +42,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(options => { 
-    options.AllowAnyHeader(); 
-    options.AllowAnyMethod(); 
-    options.AllowAnyOrigin();
-});
+// app.UseCors(options => { 
+//     options.AllowAnyHeader(); 
+//     options.AllowAnyMethod(); 
+//     options.AllowAnyOrigin();
+// });
+
+
+
+app.UseCors("BlogPolicy");
 
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 
 app.UseAuthorization();
