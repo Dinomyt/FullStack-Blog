@@ -38,7 +38,7 @@ const App = () => {
     <>
       <BrowserRouter>
         <Container className="p-0" fluid>
-          <NavBar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+          <NavBar isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} user={user}/>
         </Container>
 
         <Container

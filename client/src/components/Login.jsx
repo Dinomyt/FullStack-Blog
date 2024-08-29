@@ -32,7 +32,9 @@ const Login = ({onLogin}) => {
             username: Username,
             password: Password
         }
+        console.log("userData: ");
         console.log(userData);
+        console.log("end of userData");
         onLogin(userData);
 
        let token = await login(userData)

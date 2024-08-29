@@ -27,7 +27,7 @@ namespace API.Controllers
             return _data.AddBlogItems(newBlogItem);
         }
 
-        [HttpGet("GetBlogItem")]
+        [HttpGet("GetBlogItems")]
 
         public IEnumerable<BlogItemModel> GetAllBlogItems()
         {
@@ -69,6 +69,11 @@ namespace API.Controllers
         [HttpGet("GetPublishedItems")]
         public IEnumerable<BlogItemModel> GetPublishedItems() {
             return _data.GetPublishedItems();
+        }
+
+        [HttpGet("GetBlogItemsByUserId/{UserId}")]
+        public IEnumerable<BlogItemModel> GetBlogItemsByUserId(int UserId){
+            return _data.GetBlogItemsByUserId(UserId);
         }
 
     }
