@@ -7,8 +7,9 @@ import Form from "react-bootstrap/Form";
 import Accordion from 'react-bootstrap/Accordion';
 import {useNavigate} from 'react-router-dom';
 import { AddBlogItems, checkToken, GetBlogItemsByUserId, GetLoggedInUser, LoggedInData } from "../Services/DataService";
+import Spinner from 'react-bootstrap/Spinner';
 
-const Dashboard = ({ isDarkMode }) => {
+const Dashboard = ({ isDarkMode, onLogin }) => {
   const [show, setShow] = useState(false);
   const [blogTitle, setBlogTitle] = useState('');
   const [blogImage, setBlogImage] = useState('');
@@ -20,10 +21,28 @@ const Dashboard = ({ isDarkMode }) => {
 
   const [userId, setUserId] = useState(0);
   const [publisherName, setPublisherName] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   //Dummy data useState
   const [blogItems, setBlogItems] = useState([]);
+  let navigate = useNavigate();
+  
+  const loadUserData = async () => {
+    let userInfo = LoggedInData();
+    onLogin(userInfo)
+    setUserId(userInfo.userId);
+    setPublisherName(userInfo.publisherName);
+    console.log("User info:", userInfo);
+    setTimeout(async () => {
 
+      let userBlogItems = await GetBlogItemsByUserId(userInfo.userId)
+      setBlogItems(userBlogItems);
+    
+      setIsLoading(false);
+      console.log("Loaded blgo items: ", userBlogItems);
+    },1000)
+
+}
   const handleSaveWithPublish = async () =>
     {
     let {publisherName, userId}  = LoggedInData();
@@ -125,12 +144,13 @@ const handleCategory = (e) => {
 // const handleImage = (e) => {
 //     setBlogImage(e.target.value)
 // }
-let navigate = useNavigate();
 //useEffect is the first thing that fires onload.
   useEffect(() => {
     if(!checkToken())
     {
       navigate('/Login');
+    } else {
+      loadUserData();
     }
   }, [])
 
@@ -213,46 +233,43 @@ let navigate = useNavigate();
           </Modal.Footer>
         </Modal>
     {/* Acordion below */}
-    <Accordion defaultActiveKey={["0", "1"]} alwaysOpen>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Published</Accordion.Header>
-            <Accordion.Body>
-              {blogItems.map(
-                (item, i) =>
-                  item.isPublished && (
-                    <ListGroup key={i}>
-                      {item.title}
+    {isLoading ? <><Spinner animation="grow" variant="info" /><h2>....Loading</h2> </> :
+    blogItems.length == 0 ? <><h2 className="text-center">No Blog Items to Show.</h2> </>  : 
+    <Accordion defaultActiveKey={['0','1']} alwaysOpen>
+      <Accordion.Item eventKey="0">
+        <Accordion.Header>Published</Accordion.Header>
+        <Accordion.Body>
+         {
+           
+           blogItems.map((item,i) => item.isPublished &&  <ListGroup key={i}>{item.title}
 
-                      <Col className="d-flex justify-content-end mx-2">
-                        <Button variant="outline-danger mx-2">Delete</Button>
-                        <Button variant="outline-info mx-2">Edit</Button>
-                        <Button variant="outline-primary mx-2">Publish</Button>
-                      </Col>
-                    </ListGroup>
-                  )
-              )}
-            </Accordion.Body>
-          </Accordion.Item>
-          <Accordion.Item eventKey="1">
-            <Accordion.Header>Unpublished</Accordion.Header>
-            <Accordion.Body>
-              {blogItems.map(
-                (item, i) =>
-                  !item.isPublished && (
-                    <ListGroup key={i}>
-                      {item.title}
-
-                      <Col className="d-flex justify-content-end mx-2">
-                        <Button variant="outline-danger mx-2">Delete</Button>
-                        <Button variant="outline-info mx-2">Edit</Button>
-                        <Button variant="outline-primary mx-2">Publish</Button>
-                      </Col>
-                    </ListGroup>
-                  )
-              )}
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+                <Col className="d-flex justify-content-end mx-2">
+                    <Button variant="outline-danger mx-2">Delete</Button>
+                    <Button variant="outline-info mx-2">Edit</Button>
+                    <Button variant="outline-primary mx-2">Unpublish</Button>
+                </Col>
+            
+             </ListGroup>)
+         }
+        </Accordion.Body>
+      </Accordion.Item>
+      <Accordion.Item eventKey="1">
+        <Accordion.Header>Unpublished</Accordion.Header>
+        <Accordion.Body>
+        {
+          blogItems.map((item,i )=> !item.isPublished &&  <ListGroup key={i}>{item.title}
+            
+            <Col className="d-flex justify-content-end mx-2">
+                    <Button variant="outline-danger mx-2">Delete</Button>
+                    <Button variant="outline-info mx-2">Edit</Button>
+                    <Button variant="outline-primary mx-2">Publish</Button>
+                </Col>
+            </ListGroup>)
+         }
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
+    }
      
       </Container>
     </>

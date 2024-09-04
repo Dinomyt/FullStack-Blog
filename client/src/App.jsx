@@ -54,9 +54,9 @@ const App = () => {
             </Col>
               <Routes>
                 <Route path="/" element={<BlogPage/>}/>
-                <Route path="/Login" element={<Login onLogin={handleLogin} />}/>
+                <Route path="/Login" element={<Login/>}/>
                 <Route path="/CreateAccount" element={<CreateAccount/>}/>
-                <Route path="/Dashboard" element={<Dashboard isDarkMode={isDarkMode} />}/>
+                <Route path="/Dashboard" element={<Dashboard isDarkMode={isDarkMode} onLogin={handleLogin}/>}/>
 
               </Routes>
 

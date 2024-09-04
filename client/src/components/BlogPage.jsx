@@ -108,7 +108,7 @@ const BlogPage = () => {
                             <Col style={{border: "solid"}} className="d-flex justify-content-center" md={12}>Title</Col>
                             <Col md={12}>
                                 <Row>
-                                    <Col className="d-flex justify-content-center" md={6}>Publichser Name</Col>
+                                    <Col className="d-flex justify-content-center" md={6}>Publisher Name</Col>
                                     <Col className="text-center" style={{border: "solid"}} md={6}>Date</Col>
                                 </Row>
                             </Col>

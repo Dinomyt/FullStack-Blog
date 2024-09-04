@@ -43,9 +43,11 @@ const login = async (loginUser) => {
     throw new Error(message);
   }
   let data = await result.json();
-  console.log("data from login: ");
-  console.log(data);
-  console.log("end of data");
+  if(data.token != null)
+    {
+        localStorage.setItem("Token",data.token);
+        // localStorage.setItem("UserData",JSON.stringify(data.user));// This was returning a token and was getting undefined
+    }
   return data;
 };
 
@@ -55,10 +57,15 @@ const GetLoggedInUser = async (username) => {
   );
 
   userData = await result.json();
-  console.log(userData);
+  console.log(userData,"getloggedinsuser method")
+  localStorage.setItem("UserData",JSON.stringify(userData));
+  userData = JSON.parse(localStorage.getItem("UserData"));
 };
 
 const LoggedInData = () => {
+  if(!userData && localStorage.getItem("UserData")) {
+    userData = JSON.parse(localStorage.getItem("UserData"))
+  }
   return userData;
 };
 

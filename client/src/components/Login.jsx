@@ -28,25 +28,26 @@ const Login = ({onLogin}) => {
 
     //Function or method to hanlde our submit
     const handleSubmit =  async () => {
-        let userData = {
-            username: Username,
-            password: Password
+      
+      let userData = {
+          username: Username,
+          password: Password
         }
-        console.log("userData: ");
         console.log(userData);
-        console.log("end of userData");
-        onLogin(userData);
-
-       let token = await login(userData)
-       console.log(token.token, "This should log the token");
-       if(token.token != null)
-       {
-        localStorage.setItem("Token",token.token);
-        GetLoggedInUser(Username);
-        navigate('/Dashboard')
-       }
         
-    }
+        let token = await login(userData)
+        console.log(token.token, "This should log the token");
+        if(token.token != null)
+          {
+            localStorage.setItem("Token",token.token);
+            // localStorage.setItem("UserData",JSON.stringify(userData));
+           await GetLoggedInUser(Username);
+            
+            
+            navigate('/Dashboard')
+     }
+      return userData
+  }
 
 
   return (
