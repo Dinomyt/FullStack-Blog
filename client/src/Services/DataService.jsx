@@ -2,6 +2,10 @@ import axios from 'axios';
 
 //This will hold our helper functions or method.
 let userData = {};
+
+if(localStorage.getItem("UserData")) {
+  userData = JSON.parse(localStorage.getItem("UserData"));
+}
 //helper function to check our token.
 const checkToken = () => {
   let result = false;

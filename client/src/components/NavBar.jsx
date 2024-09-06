@@ -35,7 +35,7 @@ const NavBar = ({ isDarkMode,toggleDarkMode, user }) => {
                 )}
             </Nav.Link>
             <Nav.Link as={Link} to={'/CreateAccount'}>Create Account</Nav.Link>
-            
+
             <Nav.Link as={Link} to={'/Login'}>Login</Nav.Link>
 
             <Nav.Link as={Link} to={'/Login'} onClick={() => handleLogout}>Logout</Nav.Link>

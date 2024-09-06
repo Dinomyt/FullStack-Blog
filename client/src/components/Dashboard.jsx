@@ -16,12 +16,15 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
   const [blogDescription, setBlogDescription] = useState('');
   const [blogCategory, setBlogCategory] = useState('');
   const [blogTags, setBlogTags] = useState('');
+  const [publisherName, setPublisherName] = useState("");
 
   const [edit, setEdit] = useState(false);
 
+  const [blogId, setBlogId] = useState(0);
   const [userId, setUserId] = useState(0);
-  const [publisherName, setPublisherName] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleted, setIsDeleted] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
 
   //Dummy data useState
   const [blogItems, setBlogItems] = useState([]);
@@ -29,7 +32,7 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
   
   const loadUserData = async () => {
     let userInfo = LoggedInData();
-    onLogin(userInfo)
+    onLogin(userInfo);
     setUserId(userInfo.userId);
     setPublisherName(userInfo.publisherName);
     console.log("User info:", userInfo);
@@ -39,7 +42,7 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       setBlogItems(userBlogItems);
     
       setIsLoading(false);
-      console.log("Loaded blgo items: ", userBlogItems);
+      console.log("Loaded blog items: ", userBlogItems);
     },1000)
 
 }
@@ -56,7 +59,7 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       Description:blogDescription,
       Date: new Date(),
       Category: blogCategory,
-      IsPublished: true,
+      IsPublished: textContent === "Save" ? false: true,
       IsDeleted: false,
     }
     console.log(published);
@@ -73,6 +76,7 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       console.log(blogItems);
     }
   }
+
   const handleSaveWithUnpublish = async () =>
   {
     let {publisherName, userId}  = LoggedInData();
@@ -86,7 +90,7 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       Description:blogDescription,
       Date: new Date(),
       Category: blogCategory,
-      IsPublished: false,
+      IsPublished: textContent === "Save" ? false: true,
       IsDeleted: false,
     }
     console.log(notPublished);
@@ -101,31 +105,32 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       setBlogItems(userBlogItems);
 
     }
-
   }
 
 
   const handleClose = () => setShow(false);
-  const handleShow = (e) => {
+  const handleShow = (e, {id, blogId, publisherName, userId, title, description, category, tag, image, isDeleted, isPublished}) => {
     
     setShow(true)
     if(e.target.textContent === 'Add Blog Item')
         {
             setEdit(false);
-            setBlogTitle("");
-            setBlogDescription("");
-            setBlogCategory("");
+            console.log(e.target.textContent, edit);
 
         }else{
             setEdit(true);
-            setBlogTitle("My Awesome Title");
-            setBlogDescription("My Awesome Description");
-            setBlogCategory("Fitness");
-
-
         }
-        console.log(e.target.textContent,edit);
-
+        setBlogId(id);
+        setBlogTitle(title);
+        setUserId(userId);
+        setPublisherName(publisherName);
+        setBlogDescription(description);
+        setBlogCategory(category);
+        setBlogTags(tag);
+        setBlogImage(image);
+        setIsDeleted(isDeleted);
+        setIsPublished(isPublished);
+        console.log(e.target.textContent, edit);
 };
 
 const handleTitle = (e) => {
@@ -141,6 +146,11 @@ const handleTags = (e) => {
 const handleCategory = (e) => {
     setBlogCategory(e.target.value)
 }
+
+const handleDelete = () => {
+
+}
+
 // const handleImage = (e) => {
 //     setBlogImage(e.target.value)
 // }
@@ -171,12 +181,10 @@ const handleCategory = (e) => {
         className={isDarkMode ? 'bg-dark text-light p-5': 'bg-light'}
         fluid
       >
-        <Button variant="outline-primary m-2" onClick={handleShow}>
+        <Button variant="outline-primary m-2" onClick={(e) => handleShow(e, {id: "", publisherName: "", userId: "",title: "", description: "", category: "", tag: "", image: "", isDeleted: false, isPublished: false})}>
        Add Blog Item
         </Button>
-        <Button variant="outline-primary m-2" onClick={handleShow}>
-       Edit Blog Item
-        </Button>
+
 
         <Modal
           data-bs-theme={isDarkMode ? "dark" : "light"}
@@ -241,11 +249,11 @@ const handleCategory = (e) => {
         <Accordion.Body>
          {
            
-           blogItems.map((item,i) => item.isPublished &&  <ListGroup key={i}>{item.title}
+           blogItems.map((item,i) => (item.isPublished && !item.IsDeleted) && <ListGroup key={i}>{item.title}
 
                 <Col className="d-flex justify-content-end mx-2">
                     <Button variant="outline-danger mx-2">Delete</Button>
-                    <Button variant="outline-info mx-2">Edit</Button>
+                    <Button variant="outline-info mx-2" onClick={(e) => handleShow(e,item)}>Edit</Button>
                     <Button variant="outline-primary mx-2">Unpublish</Button>
                 </Col>
             
@@ -257,11 +265,11 @@ const handleCategory = (e) => {
         <Accordion.Header>Unpublished</Accordion.Header>
         <Accordion.Body>
         {
-          blogItems.map((item,i )=> !item.isPublished &&  <ListGroup key={i}>{item.title}
+          blogItems.map((item,i )=> (!item.isPublished && !item.IsDeleted) && <ListGroup key={i}>{item.title}
             
             <Col className="d-flex justify-content-end mx-2">
                     <Button variant="outline-danger mx-2">Delete</Button>
-                    <Button variant="outline-info mx-2">Edit</Button>
+                    <Button variant="outline-info mx-2" onClick={(e) => handleShow(e,item)}>Edit</Button>
                     <Button variant="outline-primary mx-2">Publish</Button>
                 </Col>
             </ListGroup>)
