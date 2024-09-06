@@ -5,7 +5,7 @@ import { GetLoggedInUser, login } from "../Services/DataService";
 
 
 
-const Login = ({onLogin}) => {
+const Login = () => {
 
   let navigate = useNavigate();
 
@@ -29,25 +29,25 @@ const Login = ({onLogin}) => {
     //Function or method to hanlde our submit
     const handleSubmit =  async () => {
       
-      let userData = {
-          username: Username,
-          password: Password
-        }
-        console.log(userData);
-        
-        let token = await login(userData)
-        console.log(token.token, "This should log the token");
-        if(token.token != null)
-          {
-            localStorage.setItem("Token",token.token);
-            // localStorage.setItem("UserData",JSON.stringify(userData));
-           await GetLoggedInUser(Username);
-            
-            
-            navigate('/Dashboard')
-     }
-      return userData
-  }
+        let userData = {
+            username: Username,
+            password: Password
+          }
+          console.log(userData);
+          
+          let token = await login(userData)
+          console.log(token.token, "This should log the token");
+          if(token.token != null)
+            {
+              localStorage.setItem("Token",token.token);
+              // localStorage.setItem("UserData",JSON.stringify(userData));
+             await GetLoggedInUser(Username);
+              
+              
+              navigate('/Dashboard')
+       }
+        return userData
+    }
 
 
   return (

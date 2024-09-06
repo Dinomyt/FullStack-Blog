@@ -1,9 +1,7 @@
-using API.Services;
-using API.Services.Context;
+
+using api.Services;
+using api.Services.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +11,9 @@ builder.Services.AddScoped<BlogItemService>();
 builder.Services.AddScoped<PasswordService>();
 
 var connectionString = builder.Configuration.GetConnectionString("MyBlogString");
-
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
 
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//Cors policy
 
 
 builder.Services.AddCors(options => {
@@ -33,6 +26,12 @@ builder.Services.AddCors(options => {
     );
 });
 
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,20 +40,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// app.UseCors(options => { 
-//     options.AllowAnyHeader(); 
-//     options.AllowAnyMethod(); 
-//     options.AllowAnyOrigin();
-// });
-
-
-
 app.UseCors("BlogPolicy");
-
 app.UseHttpsRedirection();
-
-app.UseAuthentication();
 
 app.UseAuthorization();
 

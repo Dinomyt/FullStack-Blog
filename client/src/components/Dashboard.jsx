@@ -6,7 +6,7 @@ import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Accordion from 'react-bootstrap/Accordion';
 import {useNavigate} from 'react-router-dom';
-import { AddBlogItems, checkToken, GetBlogItemsByUserId, GetLoggedInUser, LoggedInData } from "../Services/DataService";
+import { AddBlogItems, checkToken, GetItemsByUserId, LoggedInData, updateBlogItems } from "../Services/DataService";
 import Spinner from 'react-bootstrap/Spinner';
 
 const Dashboard = ({ isDarkMode, onLogin }) => {
@@ -16,41 +16,61 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
   const [blogDescription, setBlogDescription] = useState('');
   const [blogCategory, setBlogCategory] = useState('');
   const [blogTags, setBlogTags] = useState('');
-  const [publisherName, setPublisherName] = useState("");
 
   const [edit, setEdit] = useState(false);
 
-  const [blogId, setBlogId] = useState(0);
   const [userId, setUserId] = useState(0);
+  const [publisherName, setPublisherName] = useState("");
+
   const [isLoading, setIsLoading] = useState(true);
+
+  const [blogId, setBlogId] = useState(0);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
 
+  
+  
   //Dummy data useState
   const [blogItems, setBlogItems] = useState([]);
   let navigate = useNavigate();
   
+  //load data
   const loadUserData = async () => {
-    let userInfo = LoggedInData();
-    onLogin(userInfo);
-    setUserId(userInfo.userId);
-    setPublisherName(userInfo.publisherName);
-    console.log("User info:", userInfo);
-    setTimeout(async () => {
-
-      let userBlogItems = await GetBlogItemsByUserId(userInfo.userId)
-      setBlogItems(userBlogItems);
-    
-      setIsLoading(false);
-      console.log("Loaded blog items: ", userBlogItems);
-    },1000)
-
-}
-  const handleSaveWithPublish = async () =>
+      let userInfo = LoggedInData();
+      onLogin(userInfo)
+      setUserId(userInfo.userId);
+      setPublisherName(userInfo.publisherName);
+      console.log("User info:", userInfo);
+      setTimeout(async () => {
+  
+        let userBlogItems = await GetItemsByUserId(userInfo.userId)
+        setBlogItems(userBlogItems);
+        setUserId(userId);
+      
+        setIsLoading(false);
+        console.log("Loaded blgo items: ", userBlogItems);
+      },1000)
+  
+  }
+  
+  
+  //useEffect is the first thing that fires onload.
+    useEffect(() => {
+      if(!checkToken())
+      {
+        navigate('/Login');
+      } else{
+  
+        loadUserData()
+      }
+      
+    }, [navigate])
+ 
+    const handleSave = async ({target:{textContent}}) =>
     {
     let {publisherName, userId}  = LoggedInData();
     const published = {
-      Id:0,
+      Id:edit ? blogId: 0,
       UserId: userId,
       PublisherName:publisherName,
       Tag: blogTags,
@@ -59,78 +79,92 @@ const Dashboard = ({ isDarkMode, onLogin }) => {
       Description:blogDescription,
       Date: new Date(),
       Category: blogCategory,
-      IsPublished: textContent === "Save" ? false: true,
+      IsPublished: textContent === "Save" || textContent == "Save Changes" ? false: true,
       IsDeleted: false,
     }
-    console.log(published);
+    console.log(published)
     handleClose();
-    let result = await AddBlogItems(published);
-    if (result){
-      console.log("result is true");
-      let userBlogItems = await GetBlogItemsByUserId(userId);
-      console.log("displaying userBlogItems: ");
-      console.log(userBlogItems);
-      console.log("setting setBlogItems(userBlogItems)")
-      setBlogItems(userBlogItems);
-      console.log("Data in blogItems: ");
-      console.log(blogItems);
-    }
-  }
-
-  const handleSaveWithUnpublish = async () =>
-  {
-    let {publisherName, userId}  = LoggedInData();
-    const notPublished = {
-      Id:0,
-      UserId: userId,
-      PublisherName:publisherName,
-      Tag: blogTags,
-      Title:blogTitle,
-      Image:blogImage,
-      Description:blogDescription,
-      Date: new Date(),
-      Category: blogCategory,
-      IsPublished: textContent === "Save" ? false: true,
-      IsDeleted: false,
-    }
-    console.log(notPublished);
-    handleClose();
-    AddBlogItems(notPublished);
-    let result = await AddBlogItems(published);
-    if (result){
-      console.log("result is true");
-      let userBlogItems = await GetBlogItemsByUserId(userId);
-      console.log("displaying blogItems: ");
-      console.log(userBlogItems);
-      setBlogItems(userBlogItems);
+    let result = false;
+    if(edit)
+    {
+       result = await updateBlogItems(published)
+    
+    }else{
+       result = await AddBlogItems(published)
 
     }
+
+    if(result)
+    {
+      let userBlogItems = await GetItemsByUserId(userId);
+      setBlogItems(userBlogItems);
+      console.log(userBlogItems,"This is frou our UserBlogItems");
+      
+
+    }else {
+      alert(`Blog items not ${edit ? "Update" : "Added"}`)
+    }
   }
+  // const handleSaveWithUnpublish = async () =>
+  // {
+  //   let {publisherName, userId}  = LoggedInData();
+  //   const notPublished = {
+  //     Id:0,
+  //     UserId: userId,
+  //     PublisherName:publisherName,
+  //     Tag: blogTags,
+  //     Title:blogTitle,
+  //     Image:blogImage,
+  //     Description:blogDescription,
+  //     Date: new Date(),
+  //     Category: blogCategory,
+  //     IsPublished: false,
+  //     IsDeleted: false,
+  //   }
+  //   console.log(notPublished)
+  //   handleClose();
+  //   let result = await AddBlogItems(notPublished)
+  //   if(result)
+  //   {
+  //     let userBlogItems = await GetItemsByUserId(userId);
+  //     setBlogItems(userBlogItems);
+      
+      
+
+  //   }
+  // }
 
 
   const handleClose = () => setShow(false);
-  const handleShow = (e, {id, blogId, publisherName, userId, title, description, category, tag, image, isDeleted, isPublished}) => {
+  
+  const handleShow = (e,{id,publishername,userId,title,description,category,tag,image,isDeleted,isPublished}) => {
     
     setShow(true)
     if(e.target.textContent === 'Add Blog Item')
         {
             setEdit(false);
-            console.log(e.target.textContent, edit);
+           
+            console.log(e.target.textContent, edit)
 
         }else{
-            setEdit(true);
+
+          setEdit(true);
+          
+          
         }
-        setBlogId(id);
+        setBlogId(id)
         setBlogTitle(title);
         setUserId(userId);
-        setPublisherName(publisherName);
+        setPublisherName(publishername);
         setBlogDescription(description);
         setBlogCategory(category);
         setBlogTags(tag);
         setBlogImage(image);
         setIsDeleted(isDeleted);
         setIsPublished(isPublished);
-        console.log(e.target.textContent, edit);
+        console.log(e.target.textContent, edit)
+       
+
 };
 
 const handleTitle = (e) => {
@@ -146,23 +180,11 @@ const handleTags = (e) => {
 const handleCategory = (e) => {
     setBlogCategory(e.target.value)
 }
-
-const handleDelete = () => {
-
-}
-
 // const handleImage = (e) => {
 //     setBlogImage(e.target.value)
 // }
-//useEffect is the first thing that fires onload.
-  useEffect(() => {
-    if(!checkToken())
-    {
-      navigate('/Login');
-    } else {
-      loadUserData();
-    }
-  }, [])
+
+
 
   const handleImage = async (e) =>
   {
@@ -170,8 +192,41 @@ const handleDelete = () => {
      const reader = new FileReader();
      reader.onloadend = () => {
       console.log(reader.result);
+      setBlogImage(reader.result);
      }
      reader.readAsDataURL(file);
+  }
+  //function to help us handle pulish and unpublish
+  const handlePublish = async  (item) => 
+    {
+    const {userId} = JSON.parse(localStorage.getItem("UserData"));
+    item.isPublished = !item.isPublished;
+
+    let result = await updateBlogItems(item);
+    if(result)
+    {
+      let userBlogItems = await GetItemsByUserId(userId);
+      setBlogItems(userBlogItems);
+    }else {
+      alert(`Blog item not ${edit ? "updated": "Added"}`);
+    }
+
+
+  }
+
+  //Delete function
+  const handleDelete = async (item) => 
+  {
+    item.isDeleted = !item.isDeleted;
+    let result = await updateBlogItems(item);
+    if(result)
+    {
+      let userBlogItems = await GetItemsByUserId(item.userId)
+      setBlogItems(userBlogItems);
+
+    }else {
+      alert(`Blog item not ${edit ? "Updated" : "Added" }`);
+    }
   }
   
 
@@ -181,10 +236,12 @@ const handleDelete = () => {
         className={isDarkMode ? 'bg-dark text-light p-5': 'bg-light'}
         fluid
       >
-        <Button variant="outline-primary m-2" onClick={(e) => handleShow(e, {id: "", publisherName: "", userId: "",title: "", description: "", category: "", tag: "", image: "", isDeleted: false, isPublished: false})}>
+        <Button variant="outline-primary m-2" onClick={(e) =>handleShow(e,{id:0,userId:userId,title:"",image:"",description:"",category:"",tag:"",isDeleted:false,isPublished:false,publishername:publisherName})}>
        Add Blog Item
         </Button>
-
+        <Button variant="outline-primary m-2" onClick={handleShow}>
+       Edit Blog Item
+        </Button>
 
         <Modal
           data-bs-theme={isDarkMode ? "dark" : "light"}
@@ -232,10 +289,10 @@ const handleDelete = () => {
             <Button variant="outline-secondary" onClick={handleClose}>
               Cancel
             </Button>
-            <Button variant="outline-primary" onClick={handleSaveWithUnpublish}>
+            <Button variant="outline-primary" onClick={handleSave}>
             {edit ? "  Save Changes" : "Save"}
             </Button>
-            <Button variant="outline-primary" onClick={handleSaveWithPublish}>
+            <Button variant="outline-primary" onClick={handleSave}>
               {edit ? "  Save Changes" : "Save"} and Publish
             </Button>
           </Modal.Footer>
@@ -249,12 +306,12 @@ const handleDelete = () => {
         <Accordion.Body>
          {
            
-           blogItems.map((item,i) => (item.isPublished && !item.IsDeleted) && <ListGroup key={i}>{item.title}
+           blogItems.map((item,i) => item.isPublished &&  <ListGroup key={i}>{item.title}
 
                 <Col className="d-flex justify-content-end mx-2">
-                    <Button variant="outline-danger mx-2">Delete</Button>
+                    <Button variant="outline-danger mx-2" onClick={() => handleDelete(item)}>Delete</Button>
                     <Button variant="outline-info mx-2" onClick={(e) => handleShow(e,item)}>Edit</Button>
-                    <Button variant="outline-primary mx-2">Unpublish</Button>
+                    <Button variant="outline-primary mx-2" onClick={() => handlePublish(item)}>Unpublish</Button>
                 </Col>
             
              </ListGroup>)
@@ -265,12 +322,12 @@ const handleDelete = () => {
         <Accordion.Header>Unpublished</Accordion.Header>
         <Accordion.Body>
         {
-          blogItems.map((item,i )=> (!item.isPublished && !item.IsDeleted) && <ListGroup key={i}>{item.title}
+          blogItems.map((item,i )=> !item.isPublished &&  <ListGroup key={i}>{item.title}
             
             <Col className="d-flex justify-content-end mx-2">
-                    <Button variant="outline-danger mx-2">Delete</Button>
+                    <Button variant="outline-danger mx-2" onClick={() => handleDelete(item)}>Delete</Button>
                     <Button variant="outline-info mx-2" onClick={(e) => handleShow(e,item)}>Edit</Button>
-                    <Button variant="outline-primary mx-2">Publish</Button>
+                    <Button variant="outline-primary mx-2" onClick={() => handlePublish(item)} >Publish</Button>
                 </Col>
             </ListGroup>)
          }
